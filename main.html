@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, input[type="datetime-local"] {
+            width: 65%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: white;
+            margin: 5px 0;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>To-Do List with Notifications</h2>
+        <input type="text" id="taskInput" placeholder="Add a new task">
+        <input type="datetime-local" id="taskTime">
+        <button onclick="addTask()">Add</button>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        function addTask() {
+            let taskInput = document.getElementById("taskInput");
+            let taskTime = document.getElementById("taskTime").value;
+            let taskText = taskInput.value.trim();
+            if (taskText === "" || taskTime === "") return;
+
+            let li = document.createElement("li");
+            li.innerHTML = `${taskText} - ${new Date(taskTime).toLocaleString()} <button class='delete' onclick='deleteTask(this)'>Delete</button>`;
+            document.getElementById("taskList").appendChild(li);
+
+            scheduleNotification(taskText, taskTime);
+            taskInput.value = "";
+            document.getElementById("taskTime").value = "";
+        }
+
+        function deleteTask(button) {
+            button.parentElement.remove();
+        }
+
+        function scheduleNotification(taskText, taskTime) {
+            let taskDate = new Date(taskTime).getTime();
+            let now = new Date().getTime();
+            let delay = taskDate - now;
+            
+            if (delay > 0) {
+                setTimeout(() => {
+                    new Notification("To-Do Reminder", {
+                        body: `Reminder: ${taskText}`
+                    });
+                }, delay);
+            }
+        }
+
+        if ("Notification" in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission !== "granted") {
+                    alert("Enable notifications for reminders!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
